@@ -1,0 +1,32 @@
+{
+  "chromosome": {
+    "window_slope": 51,
+    "window_volatility": 16,
+    "window_rolling_return": 16,
+    "n_clusters": 5,
+    "use_volatility": true,
+    "use_rolling_return": false
+  },
+  "target_return": 0.01,
+  "horizon": 2,
+  "ticker": "BOVA11.SA",
+  "feature_cols": [
+    "slope_51",
+    "volatility_16"
+  ],
+  "cluster_interpretations": {
+    "0": "bear",
+    "1": "bull",
+    "2": "bear",
+    "3": "bull",
+    "4": "bear"
+  },
+  "cluster_probabilities": {
+    "3": 0.31862068965517243,
+    "4": 0.30684931506849317,
+    "1": 0.2711993888464477,
+    "0": 0.36792452830188677,
+    "2": 0.3333333333333333
+  },
+  "probability_unconditional": 0.3072230356271352
+}

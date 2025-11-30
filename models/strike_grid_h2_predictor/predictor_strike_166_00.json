@@ -1,0 +1,25 @@
+{
+  "chromosome": {
+    "window_slope": 59,
+    "window_volatility": 56,
+    "window_rolling_return": 60,
+    "n_clusters": 2,
+    "use_volatility": false,
+    "use_rolling_return": false
+  },
+  "target_return": 0.06512668270120403,
+  "horizon": 2,
+  "ticker": null,
+  "feature_cols": [
+    "slope_59"
+  ],
+  "cluster_interpretations": {
+    "0": "bear",
+    "1": "bull"
+  },
+  "cluster_probabilities": {
+    "1": 0.0014170996693434106,
+    "0": 0.005720228809152366
+  },
+  "probability_unconditional": 0.0036603221083455345
+}

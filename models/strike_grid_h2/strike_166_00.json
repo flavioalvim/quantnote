@@ -1,0 +1,20 @@
+{
+  "target": 0.06512668270120403,
+  "best_chromosome": {
+    "window_slope": 59,
+    "window_volatility": 56,
+    "window_rolling_return": 60,
+    "n_clusters": 2,
+    "use_volatility": false,
+    "use_rolling_return": false
+  },
+  "best_fitness": 0.09976096096262879,
+  "best_metrics": {
+    "fitness": 0.09976096096262879,
+    "delta_p": 0.0062349855826791005,
+    "delta_p_test": 0.0062349855826791005,
+    "stability_score": 0.01818391925786092,
+    "overfitting_ratio": 0.8598807393719752
+  },
+  "all_evaluations": 1100
+}

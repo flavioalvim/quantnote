@@ -1,0 +1,33 @@
+{
+  "chromosome": {
+    "window_slope": 58,
+    "window_volatility": 47,
+    "window_rolling_return": 36,
+    "n_clusters": 5,
+    "use_volatility": true,
+    "use_rolling_return": true
+  },
+  "target_return": 0.01379527630596522,
+  "horizon": 2,
+  "ticker": null,
+  "feature_cols": [
+    "slope_58",
+    "volatility_47",
+    "log_return_rolling_36"
+  ],
+  "cluster_interpretations": {
+    "0": "bear",
+    "1": "bull",
+    "2": "bear",
+    "3": "flat",
+    "4": "bull"
+  },
+  "cluster_probabilities": {
+    "3": 0.22598870056497175,
+    "1": 0.20490716180371352,
+    "4": 0.23647294589178355,
+    "0": 0.3064798598949212,
+    "2": 0.3617021276595745
+  },
+  "probability_unconditional": 0.2340165934602245
+}
