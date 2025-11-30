@@ -4,6 +4,16 @@ from .calculator_factory import CalculatorFactory
 from .walk_forward_validator import WalkForwardValidator, WalkForwardResult, FoldResult
 from .fitness import FitnessEvaluator, FitnessResult
 from .genetic_algorithm import GeneticAlgorithm, GAResult
+from .multi_target_optimizer import (
+    MultiTargetOptimizer,
+    MultiTargetResult,
+    MultiTargetOptimizationResult
+)
+from .strike_grid_optimizer import (
+    StrikeGridOptimizer,
+    StrikeTarget,
+    StrikeGridOptimizationResult
+)
 
 __all__ = [
     'Chromosome',
@@ -14,5 +24,11 @@ __all__ = [
     'FitnessEvaluator',
     'FitnessResult',
     'GeneticAlgorithm',
-    'GAResult'
+    'GAResult',
+    'MultiTargetOptimizer',
+    'MultiTargetResult',
+    'MultiTargetOptimizationResult',
+    'StrikeGridOptimizer',
+    'StrikeTarget',
+    'StrikeGridOptimizationResult'
 ]

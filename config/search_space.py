@@ -1,6 +1,27 @@
 """GA Search Space configuration."""
 from pydantic import BaseModel, Field
-from typing import Tuple
+from typing import Tuple, List
+import numpy as np
+
+
+class TargetGrid(BaseModel):
+    """Configuration for multi-target optimization grid."""
+
+    target_min: float = Field(default=0.01, ge=-0.5, le=0.5)
+    target_max: float = Field(default=0.10, ge=-0.5, le=0.5)
+    target_step: float = Field(default=0.01, ge=0.001, le=0.1)
+
+    def to_array(self) -> List[float]:
+        """Generate array of target values."""
+        targets = np.arange(
+            self.target_min,
+            self.target_max + self.target_step / 2,
+            self.target_step
+        )
+        return [round(t, 4) for t in targets]
+
+    def __len__(self) -> int:
+        return len(self.to_array())
 
 
 class GASearchSpace(BaseModel):
