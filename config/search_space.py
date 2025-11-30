@@ -1,0 +1,39 @@
+"""GA Search Space configuration."""
+from pydantic import BaseModel, Field
+from typing import Tuple
+
+
+class GASearchSpace(BaseModel):
+    """Centralized search space for genetic algorithm."""
+
+    window_slope: Tuple[int, int] = Field(default=(5, 60))
+    window_volatility: Tuple[int, int] = Field(default=(5, 60))
+    window_rolling_return: Tuple[int, int] = Field(default=(5, 60))
+    n_clusters: Tuple[int, int] = Field(default=(2, 5))
+
+
+class GAConfig(BaseModel):
+    """Genetic algorithm configuration."""
+
+    # Fixed prediction parameters (not optimized)
+    target_return: float = Field(default=0.05, ge=-0.5, le=0.5)
+    horizon: int = Field(default=7, ge=1, le=60)
+
+    # GA parameters
+    population_size: int = Field(default=50, ge=10, le=500)
+    generations: int = Field(default=100, ge=10, le=100000)
+    crossover_probability: float = Field(default=0.7, ge=0.0, le=1.0)
+    mutation_probability: float = Field(default=0.2, ge=0.0, le=1.0)
+    elite_size: int = Field(default=5, ge=1, le=20)
+    stability_penalty: float = Field(default=0.1, ge=0.0, le=1.0)
+
+    # Walk-forward validation
+    n_folds: int = Field(default=5, ge=2, le=10)
+    train_ratio: float = Field(default=0.7, ge=0.5, le=0.9)
+
+    # Early stopping
+    early_stopping: bool = Field(default=True)
+    early_stopping_patience: int = Field(default=20, ge=5, le=1000)
+    early_stopping_threshold: float = Field(default=0.001, ge=0.0, le=0.1)
+
+    search_space: GASearchSpace = GASearchSpace()
