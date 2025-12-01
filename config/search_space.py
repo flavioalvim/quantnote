@@ -31,6 +31,8 @@ class GASearchSpace(BaseModel):
     window_volatility: Tuple[int, int] = Field(default=(5, 60))
     window_rolling_return: Tuple[int, int] = Field(default=(5, 60))
     n_clusters: Tuple[int, int] = Field(default=(2, 5))
+    ma_fast_period: Tuple[int, int] = Field(default=(5, 20))
+    ma_slow_period: Tuple[int, int] = Field(default=(20, 60))
 
 
 class GAConfig(BaseModel):

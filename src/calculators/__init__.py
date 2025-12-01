@@ -5,6 +5,7 @@ from .future_return_calculator import FutureReturnCalculator
 from .future_touch_calculator import FutureTouchCalculator, FutureTouchCalculatorVectorized
 from .volatility_calculator import VolatilityCalculator
 from .slope_calculator import SlopeCalculator
+from .ma_distance_calculator import MADistanceCalculator
 from .dependency_resolver import DependencyResolver
 from .pipeline import CalculatorPipeline
 
@@ -16,6 +17,7 @@ __all__ = [
     'FutureTouchCalculatorVectorized',
     'VolatilityCalculator',
     'SlopeCalculator',
+    'MADistanceCalculator',
     'DependencyResolver',
     'CalculatorPipeline'
 ]

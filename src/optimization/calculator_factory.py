@@ -8,6 +8,7 @@ from ..calculators.future_return_calculator import FutureReturnCalculator
 from ..calculators.future_touch_calculator import FutureTouchCalculatorVectorized
 from ..calculators.volatility_calculator import VolatilityCalculator
 from ..calculators.slope_calculator import SlopeCalculator
+from ..calculators.ma_distance_calculator import MADistanceCalculator
 from ..calculators.pipeline import CalculatorPipeline
 from .chromosome import Chromosome
 
@@ -52,6 +53,14 @@ class CalculatorFactory:
             SlopeCalculator(window=chromosome.window_slope)
         )
 
+        if chromosome.use_ma_distance:
+            calculators.append(
+                MADistanceCalculator(
+                    fast_period=chromosome.ma_fast_period,
+                    slow_period=chromosome.ma_slow_period
+                )
+            )
+
         return CalculatorPipeline(calculators, auto_resolve=True)
 
     def get_feature_columns(self, chromosome: Chromosome) -> List[str]:
@@ -63,6 +72,9 @@ class CalculatorFactory:
 
         if chromosome.use_rolling_return:
             features.append(f'log_return_rolling_{chromosome.window_rolling_return}')
+
+        if chromosome.use_ma_distance:
+            features.append(f'ma_dist_{chromosome.ma_fast_period}_{chromosome.ma_slow_period}')
 
         return features
 

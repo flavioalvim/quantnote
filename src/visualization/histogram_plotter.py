@@ -138,8 +138,8 @@ class PriceRegimePlotter(IVisualizer):
         # Price plot
         ax_price.plot(df.index, df['close'], color='black', linewidth=0.5)
 
-        # Regime colors
-        regime_colors = {
+        # Named regime colors
+        named_regime_colors = {
             'bull_high_vol': 'lightgreen',
             'bull_low_vol': 'green',
             'bear_high_vol': 'lightcoral',
@@ -151,13 +151,41 @@ class PriceRegimePlotter(IVisualizer):
             'flat': 'gray'
         }
 
+        # Color palette for numeric clusters
+        cluster_colors = [
+            '#2ecc71',  # green
+            '#e74c3c',  # red
+            '#3498db',  # blue
+            '#f39c12',  # orange
+            '#9b59b6',  # purple
+            '#1abc9c',  # teal
+            '#e67e22',  # dark orange
+            '#34495e',  # dark gray
+            '#16a085',  # dark teal
+            '#c0392b',  # dark red
+        ]
+
+        # Get unique regimes
+        regimes = df[self.regime_column].dropna().unique()
+
         # Color background by regime
-        for regime, color in regime_colors.items():
+        for regime in sorted(regimes):
             mask = df[self.regime_column] == regime
+
+            # Determine color: use named colors for strings, palette for numbers
+            if isinstance(regime, str):
+                color = named_regime_colors.get(regime, 'gray')
+                label = regime
+            else:
+                # Numeric cluster
+                cluster_idx = int(regime) % len(cluster_colors)
+                color = cluster_colors[cluster_idx]
+                label = f'Cluster {int(regime)}'
+
             if mask.any():
                 ax_price.fill_between(
                     df.index, df['close'].min(), df['close'].max(),
-                    where=mask, alpha=0.3, color=color, label=regime
+                    where=mask, alpha=0.3, color=color, label=label
                 )
 
         ax_price.set_ylabel('Price')
@@ -172,7 +200,15 @@ class PriceRegimePlotter(IVisualizer):
         ax_regime.plot(df.index, regime_nums, linewidth=1)
         ax_regime.set_ylabel('Regime')
         ax_regime.set_yticks(list(regime_to_num.values()))
-        ax_regime.set_yticklabels(list(regime_to_num.keys()), fontsize=8)
+
+        # Format labels: "Cluster X" for numeric, original name for strings
+        labels = []
+        for r in sorted(regimes):
+            if isinstance(r, str):
+                labels.append(r)
+            else:
+                labels.append(f'Cluster {int(r)}')
+        ax_regime.set_yticklabels(labels, fontsize=8)
 
         plt.tight_layout()
         return fig

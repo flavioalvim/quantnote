@@ -22,6 +22,10 @@ class AnalysisConfig(BaseModel):
     window_slope: int = Field(default=20, ge=5, le=100)
     window_volatility: int = Field(default=20, ge=5, le=100)
 
+    # Moving average distance
+    ma_fast_period: int = Field(default=9, ge=2, le=50)
+    ma_slow_period: int = Field(default=21, ge=5, le=200)
+
     # Clustering
     n_clusters: int = Field(default=6, ge=2, le=10)
 
@@ -42,6 +46,14 @@ class AnalysisConfig(BaseModel):
         # This validation is simplified
         if v >= 126:  # Half of default min_data_points
             raise ValueError(f"Window {v} too large")
+        return v
+
+    @field_validator('ma_slow_period')
+    @classmethod
+    def slow_greater_than_fast(cls, v, info):
+        fast = info.data.get('ma_fast_period', 9)
+        if v <= fast:
+            raise ValueError(f"ma_slow_period ({v}) must be greater than ma_fast_period ({fast})")
         return v
 
 

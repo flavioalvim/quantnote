@@ -50,7 +50,8 @@ class DualProbabilityCalculator:
         close_return_column: str,
         touch_return_column: str,
         target_return: float,
-        regime_column: str = 'regime'
+        regime_column: str = 'regime',
+        horizon: Optional[int] = None
     ):
         """
         Initialize dual calculator.
@@ -60,11 +61,13 @@ class DualProbabilityCalculator:
             touch_return_column: Column with touch return (e.g., 'log_return_touch_max_7')
             target_return: Target return as percentage (e.g., 0.05 for 5%)
             regime_column: Column containing regime labels
+            horizon: Number of periods for display purposes (e.g., 7 days)
         """
         self.close_return_column = close_return_column
         self.touch_return_column = touch_return_column
         self.target_return = target_return
         self.regime_column = regime_column
+        self.horizon = horizon
 
         # Convert target to log return
         self.log_target = np.log(1 + target_return)
@@ -152,6 +155,7 @@ class DualProbabilityCalculator:
             'target_return': self.target_return,
             'target_return_pct': f"{self.target_return * 100:.1f}%",
             'log_target': self.log_target,
+            'horizon': self.horizon,
 
             # Raw probabilities
             'raw_probabilities': {
@@ -195,8 +199,11 @@ class DualProbabilityCalculator:
         """Print a formatted comparison of close vs touch probabilities."""
         report = self.generate_report(df)
 
+        # Build title with optional horizon
+        horizon_str = f" em {report['horizon']} dias" if report['horizon'] else ""
+
         print(f"\n{'='*60}")
-        print(f"Probabilidade de atingir {report['target_return_pct']} de retorno")
+        print(f"Probabilidade de atingir {report['target_return_pct']} de retorno{horizon_str}")
         print(f"{'='*60}")
 
         print(f"\n📊 Probabilidades Gerais (sem condicionamento):")

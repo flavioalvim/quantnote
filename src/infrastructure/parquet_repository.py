@@ -1,8 +1,8 @@
 """Parquet-based data repository."""
 import pandas as pd
 from pathlib import Path
-from datetime import datetime
-from typing import Optional, List
+from datetime import datetime, timedelta
+from typing import Optional, List, Tuple
 
 from ..interfaces.repository import IRepository, FileMetadata
 from ..interfaces.logger import ILogger
@@ -123,3 +123,81 @@ class ParquetRepository(IRepository):
             self.logger.info("File deleted", filename=filename)
             return True
         return False
+
+    def get_last_date(self, ticker: str) -> Optional[datetime]:
+        """Get the last date available in cached data for a ticker."""
+        files = self.list_files(ticker)
+        if not files:
+            return None
+
+        latest = files[-1]
+        if latest.date_range and latest.date_range[1]:
+            return pd.to_datetime(latest.date_range[1])
+        return None
+
+    def is_data_current(self, ticker: str, max_age_days: int = 1) -> Tuple[bool, Optional[datetime]]:
+        """
+        Check if cached data is current (within max_age_days of today).
+
+        Args:
+            ticker: The ticker symbol
+            max_age_days: Maximum acceptable age in days (default: 1)
+
+        Returns:
+            Tuple of (is_current, last_date)
+        """
+        last_date = self.get_last_date(ticker)
+        if last_date is None:
+            return False, None
+
+        # Consider weekends: if today is Monday, data from Friday is ok
+        today = datetime.now().date()
+        last_date_only = last_date.date()
+
+        # Calculate business days difference (approximate)
+        days_diff = (today - last_date_only).days
+
+        # Account for weekends
+        if today.weekday() == 0:  # Monday
+            # Friday data (3 days ago) is acceptable
+            effective_max_age = max_age_days + 2
+        elif today.weekday() == 6:  # Sunday
+            # Friday data (2 days ago) is acceptable
+            effective_max_age = max_age_days + 1
+        else:
+            effective_max_age = max_age_days
+
+        is_current = days_diff <= effective_max_age
+
+        self.logger.info(
+            "Data freshness check",
+            ticker=ticker,
+            last_date=str(last_date_only),
+            days_diff=days_diff,
+            is_current=is_current
+        )
+
+        return is_current, last_date
+
+    def delete_old_files(self, ticker: str, keep_latest: int = 1) -> int:
+        """
+        Delete old cache files, keeping only the most recent ones.
+
+        Args:
+            ticker: The ticker symbol
+            keep_latest: Number of recent files to keep
+
+        Returns:
+            Number of files deleted
+        """
+        files = self.list_files(ticker)
+        if len(files) <= keep_latest:
+            return 0
+
+        to_delete = files[:-keep_latest]
+        deleted = 0
+        for f in to_delete:
+            if self.delete(f.filename):
+                deleted += 1
+
+        return deleted
