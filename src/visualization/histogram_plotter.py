@@ -119,16 +119,44 @@ class HistogramPlotter(IVisualizer):
 class PriceRegimePlotter(IVisualizer):
     """Plots price series with regime coloring."""
 
+    # Color palettes for interpreted clusters (bull/bear/flat)
+    BULL_COLORS = ['#27ae60', '#2ecc71', '#58d68d', '#82e0aa', '#abebc6']  # greens
+    BEAR_COLORS = ['#c0392b', '#e74c3c', '#ec7063', '#f1948a', '#f5b7b1']  # reds/pinks
+    FLAT_COLORS = ['#f39c12', '#f1c40f', '#f4d03f', '#f7dc6f', '#fcf3cf']  # yellows
+
     def __init__(
         self,
         regime_column: str = 'regime',
-        figsize: tuple = (14, 8)
+        figsize: tuple = (14, 8),
+        cluster_interpretations: Optional[dict] = None
     ):
+        """
+        Initialize plotter.
+
+        Args:
+            regime_column: Column name containing regime/cluster labels
+            figsize: Figure size tuple
+            cluster_interpretations: Dict mapping cluster_id -> 'bull'/'bear'/'flat'
+                                     If provided, colors will be based on interpretation
+        """
         self.regime_column = regime_column
         self.figsize = figsize
+        self.cluster_interpretations = cluster_interpretations
 
-    def plot(self, df: pd.DataFrame, **kwargs) -> matplotlib.figure.Figure:
-        """Plot prices with regime background."""
+    def plot(
+        self,
+        df: pd.DataFrame,
+        cluster_interpretations: Optional[dict] = None,
+        **kwargs
+    ) -> matplotlib.figure.Figure:
+        """
+        Plot prices with regime background.
+
+        Args:
+            df: DataFrame with price data and regime column
+            cluster_interpretations: Dict mapping cluster_id -> 'bull'/'bear'/'flat'
+                                     Overrides instance-level interpretations
+        """
         fig, axes = plt.subplots(2, 1, figsize=self.figsize,
                                   gridspec_kw={'height_ratios': [3, 1]})
 
@@ -138,32 +166,24 @@ class PriceRegimePlotter(IVisualizer):
         # Price plot
         ax_price.plot(df.index, df['close'], color='black', linewidth=0.5)
 
-        # Named regime colors
+        # Use provided interpretations or instance-level
+        interpretations = cluster_interpretations or self.cluster_interpretations
+
+        # Named regime colors (for manual classification)
         named_regime_colors = {
-            'bull_high_vol': 'lightgreen',
-            'bull_low_vol': 'green',
-            'bear_high_vol': 'lightcoral',
-            'bear_low_vol': 'red',
-            'flat_high_vol': 'lightyellow',
-            'flat_low_vol': 'yellow',
-            'bull': 'green',
-            'bear': 'red',
-            'flat': 'gray'
+            'bull_high_vol': '#2ecc71',
+            'bull_low_vol': '#27ae60',
+            'bear_high_vol': '#e74c3c',
+            'bear_low_vol': '#c0392b',
+            'flat_high_vol': '#f1c40f',
+            'flat_low_vol': '#f39c12',
+            'bull': '#2ecc71',
+            'bear': '#e74c3c',
+            'flat': '#f1c40f'
         }
 
-        # Color palette for numeric clusters
-        cluster_colors = [
-            '#2ecc71',  # green
-            '#e74c3c',  # red
-            '#3498db',  # blue
-            '#f39c12',  # orange
-            '#9b59b6',  # purple
-            '#1abc9c',  # teal
-            '#e67e22',  # dark orange
-            '#34495e',  # dark gray
-            '#16a085',  # dark teal
-            '#c0392b',  # dark red
-        ]
+        # Track used colors per interpretation for variety
+        bull_idx, bear_idx, flat_idx = 0, 0, 0
 
         # Get unique regimes
         regimes = df[self.regime_column].dropna().unique()
@@ -172,15 +192,30 @@ class PriceRegimePlotter(IVisualizer):
         for regime in sorted(regimes):
             mask = df[self.regime_column] == regime
 
-            # Determine color: use named colors for strings, palette for numbers
+            # Determine color and label
             if isinstance(regime, str):
-                color = named_regime_colors.get(regime, 'gray')
+                # String regime (manual classification)
+                color = named_regime_colors.get(regime, '#95a5a6')
                 label = regime
             else:
-                # Numeric cluster
-                cluster_idx = int(regime) % len(cluster_colors)
-                color = cluster_colors[cluster_idx]
-                label = f'Cluster {int(regime)}'
+                # Numeric cluster - use interpretation if available
+                cluster_id = int(regime)
+                interp = None
+                if interpretations:
+                    interp = interpretations.get(cluster_id, 'flat')
+
+                if interp == 'bull':
+                    color = self.BULL_COLORS[bull_idx % len(self.BULL_COLORS)]
+                    bull_idx += 1
+                    label = f'Cluster {cluster_id} (bull)'
+                elif interp == 'bear':
+                    color = self.BEAR_COLORS[bear_idx % len(self.BEAR_COLORS)]
+                    bear_idx += 1
+                    label = f'Cluster {cluster_id} (bear)'
+                else:
+                    color = self.FLAT_COLORS[flat_idx % len(self.FLAT_COLORS)]
+                    flat_idx += 1
+                    label = f'Cluster {cluster_id} (flat)'
 
             if mask.any():
                 ax_price.fill_between(
@@ -201,13 +236,17 @@ class PriceRegimePlotter(IVisualizer):
         ax_regime.set_ylabel('Regime')
         ax_regime.set_yticks(list(regime_to_num.values()))
 
-        # Format labels: "Cluster X" for numeric, original name for strings
+        # Format labels with interpretation if available
         labels = []
         for r in sorted(regimes):
             if isinstance(r, str):
                 labels.append(r)
             else:
-                labels.append(f'Cluster {int(r)}')
+                cluster_id = int(r)
+                if interpretations and cluster_id in interpretations:
+                    labels.append(f'Cluster {cluster_id} ({interpretations[cluster_id]})')
+                else:
+                    labels.append(f'Cluster {cluster_id}')
         ax_regime.set_yticklabels(labels, fontsize=8)
 
         plt.tight_layout()
