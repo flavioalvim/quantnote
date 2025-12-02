@@ -30,6 +30,8 @@ class GASearchSpace(BaseModel):
     window_slope: Tuple[int, int] = Field(default=(5, 60))
     window_volatility: Tuple[int, int] = Field(default=(5, 60))
     window_rolling_return: Tuple[int, int] = Field(default=(5, 60))
+    window_trend_indicator: Tuple[int, int] = Field(default=(5, 30))
+    trend_slope_multiplier: Tuple[float, float] = Field(default=(1.5, 3.0))
     n_clusters: Tuple[int, int] = Field(default=(2, 5))
     ma_fast_period: Tuple[int, int] = Field(default=(5, 20))
     ma_slow_period: Tuple[int, int] = Field(default=(20, 60))

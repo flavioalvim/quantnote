@@ -1,23 +1,26 @@
 {
-  "target": 0.03946097950358474,
+  "target": 0.04180064308681675,
   "best_chromosome": {
-    "window_slope": 6,
-    "window_volatility": 17,
-    "window_rolling_return": 26,
+    "window_slope": 31,
+    "window_volatility": 54,
+    "window_rolling_return": 36,
+    "window_trend_indicator": 21,
+    "trend_slope_multiplier": 2.8,
     "n_clusters": 5,
-    "ma_fast_period": 17,
-    "ma_slow_period": 44,
+    "ma_fast_period": 10,
+    "ma_slow_period": 48,
     "use_volatility": true,
-    "use_rolling_return": false,
-    "use_ma_distance": true
+    "use_rolling_return": true,
+    "use_ma_distance": true,
+    "use_trend_indicator": false
   },
-  "best_fitness": 0.5289072450336217,
+  "best_fitness": 0.5284267969172087,
   "best_metrics": {
-    "fitness": 0.5289072450336217,
-    "delta_p": 0.5462362024196582,
-    "delta_p_test": 0.5462362024196582,
-    "stability_score": 0.17328957386036437,
-    "overfitting_ratio": 0.7880439599581508
+    "fitness": 0.5284267969172087,
+    "delta_p": 0.5348973182190815,
+    "delta_p_test": 0.5348973182190815,
+    "stability_score": 0.06470521301872786,
+    "overfitting_ratio": 0.7481186528995537
   },
-  "all_evaluations": 1600
+  "all_evaluations": 1950
 }

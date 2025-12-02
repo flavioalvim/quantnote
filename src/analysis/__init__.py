@@ -8,6 +8,15 @@ from .dual_probability_calculator import (
     DualProbabilityResult,
     DualSeparationMetrics
 )
+from .cluster_explainer import (
+    IClusterExplainer,
+    DecisionTreeExplainer,
+    RandomForestExplainer,
+    CompositeExplainer,
+    Condition,
+    ClusterRule,
+    ExplainerMetrics
+)
 
 __all__ = [
     'TimeSeriesSplitter',
@@ -20,5 +29,13 @@ __all__ = [
     'SeparationMetrics',
     'DualProbabilityCalculator',
     'DualProbabilityResult',
-    'DualSeparationMetrics'
+    'DualSeparationMetrics',
+    # Cluster Explainers
+    'IClusterExplainer',
+    'DecisionTreeExplainer',
+    'RandomForestExplainer',
+    'CompositeExplainer',
+    'Condition',
+    'ClusterRule',
+    'ExplainerMetrics'
 ]

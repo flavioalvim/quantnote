@@ -49,7 +49,8 @@ class KMeansRegimeClassifier:
         if self.feature_columns is None:
             self.feature_columns = [
                 c for c in df.columns
-                if 'slope' in c or 'volatility' in c or 'log_return_rolling' in c or 'ma_dist' in c
+                if 'slope' in c or 'volatility' in c or 'log_return_rolling' in c
+                or 'ma_dist' in c or 'trend_strength' in c  # Use trend_strength (abs) to avoid redundancy with slope
             ]
             self.logger.info(
                 "Auto-detected feature columns",

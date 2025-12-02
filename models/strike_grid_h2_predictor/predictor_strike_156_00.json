@@ -1,32 +1,38 @@
 {
   "chromosome": {
-    "window_slope": 42,
-    "window_volatility": 10,
-    "window_rolling_return": 31,
-    "n_clusters": 3,
-    "ma_fast_period": 15,
-    "ma_slow_period": 56,
+    "window_slope": 57,
+    "window_volatility": 11,
+    "window_rolling_return": 53,
+    "window_trend_indicator": 8,
+    "trend_slope_multiplier": 1.5,
+    "n_clusters": 4,
+    "ma_fast_period": 9,
+    "ma_slow_period": 41,
     "use_volatility": true,
     "use_rolling_return": false,
-    "use_ma_distance": true
+    "use_ma_distance": true,
+    "use_trend_indicator": true
   },
   "target_return": 0.0009624247071555736,
   "horizon": 7,
   "ticker": null,
   "feature_cols": [
-    "slope_42",
-    "volatility_10",
-    "ma_dist_15_56"
+    "slope_57",
+    "volatility_11",
+    "ma_dist_9_41",
+    "trend_indicator_norm_8"
   ],
   "cluster_interpretations": {
-    "0": "bear",
+    "0": "flat",
     "1": "bull",
-    "2": "bear"
+    "2": "bear",
+    "3": "bear"
   },
   "cluster_probabilities": {
-    "2": 0.5198609731876862,
-    "1": 0.5225450901803608,
-    "0": 0.6785714285714286
+    "0": 0.5127314814814815,
+    "2": 0.5546218487394958,
+    "1": 0.5082582582582582,
+    "3": 0.68
   },
   "probability_unconditional": 0.5235768385047642
 }

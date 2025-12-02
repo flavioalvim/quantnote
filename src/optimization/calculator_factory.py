@@ -9,6 +9,7 @@ from ..calculators.future_touch_calculator import FutureTouchCalculatorVectorize
 from ..calculators.volatility_calculator import VolatilityCalculator
 from ..calculators.slope_calculator import SlopeCalculator
 from ..calculators.ma_distance_calculator import MADistanceCalculator
+from ..calculators.trend_indicator_calculator import TrendIndicatorCalculator
 from ..calculators.pipeline import CalculatorPipeline
 from .chromosome import Chromosome
 
@@ -61,6 +62,14 @@ class CalculatorFactory:
                 )
             )
 
+        if chromosome.use_trend_indicator:
+            calculators.append(
+                TrendIndicatorCalculator(
+                    window=chromosome.window_trend_indicator,
+                    slope_multiplier=chromosome.trend_slope_multiplier
+                )
+            )
+
         return CalculatorPipeline(calculators, auto_resolve=True)
 
     def get_feature_columns(self, chromosome: Chromosome) -> List[str]:
@@ -75,6 +84,10 @@ class CalculatorFactory:
 
         if chromosome.use_ma_distance:
             features.append(f'ma_dist_{chromosome.ma_fast_period}_{chromosome.ma_slow_period}')
+
+        if chromosome.use_trend_indicator:
+            # Use trend_strength (abs) to avoid redundancy with slope
+            features.append(f'trend_strength_norm_{chromosome.window_trend_indicator}')
 
         return features
 

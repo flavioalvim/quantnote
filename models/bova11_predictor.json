@@ -1,37 +1,39 @@
 {
   "chromosome": {
-    "window_slope": 59,
-    "window_volatility": 42,
-    "window_rolling_return": 35,
+    "window_slope": 28,
+    "window_volatility": 39,
+    "window_rolling_return": 17,
+    "window_trend_indicator": 11,
+    "trend_slope_multiplier": 2.5,
     "n_clusters": 5,
-    "ma_fast_period": 9,
-    "ma_slow_period": 37,
+    "ma_fast_period": 5,
+    "ma_slow_period": 44,
     "use_volatility": true,
-    "use_rolling_return": true,
-    "use_ma_distance": true
+    "use_rolling_return": false,
+    "use_ma_distance": true,
+    "use_trend_indicator": false
   },
   "target_return": 0.03,
   "horizon": 7,
   "ticker": "BOVA11.SA",
   "feature_cols": [
-    "slope_59",
-    "volatility_42",
-    "log_return_rolling_35",
-    "ma_dist_9_37"
+    "slope_28",
+    "volatility_39",
+    "ma_dist_5_44"
   ],
   "cluster_interpretations": {
-    "0": "bear",
-    "1": "bull",
-    "2": "flat",
-    "3": "bear",
-    "4": "bull"
+    "0": "bull",
+    "1": "flat",
+    "2": "bear",
+    "3": "bull",
+    "4": "bear"
   },
   "cluster_probabilities": {
-    "2": 0.17300521998508575,
-    "1": 0.21593447505584512,
-    "4": 0.17134831460674158,
-    "0": 0.3098827470686767,
-    "3": 0.5476190476190477
+    "1": 0.20509915014164307,
+    "2": 0.2521419828641371,
+    "0": 0.18583450210378682,
+    "4": 0.7619047619047619,
+    "3": 0.36363636363636365
   },
-  "probability_unconditional": 0.21280234546787197
+  "probability_unconditional": 0.2127503663898388
 }

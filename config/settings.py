@@ -21,6 +21,8 @@ class AnalysisConfig(BaseModel):
     window_rolling_return: int = Field(default=20, ge=5, le=100)
     window_slope: int = Field(default=20, ge=5, le=100)
     window_volatility: int = Field(default=20, ge=5, le=100)
+    window_trend_indicator: int = Field(default=10, ge=2, le=50)
+    trend_slope_multiplier: float = Field(default=2.0, ge=1.0, le=5.0)
 
     # Moving average distance
     ma_fast_period: int = Field(default=9, ge=2, le=50)
