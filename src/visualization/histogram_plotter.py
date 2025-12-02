@@ -62,14 +62,19 @@ class HistogramPlotter(IVisualizer):
         )
         axes = axes.flatten() if n_regimes > 1 else [axes]
 
-        # Color map for regimes
+        # Color map for regimes (both 6-regime and 3-regime classifications)
         colors = {
+            # 6 regimes (ManualRegimeClassifier with volatility)
             'bull_high_vol': 'lightgreen',
             'bull_low_vol': 'darkgreen',
             'bear_high_vol': 'lightcoral',
             'bear_low_vol': 'darkred',
             'flat_high_vol': 'lightyellow',
-            'flat_low_vol': 'gold'
+            'flat_low_vol': 'gold',
+            # 3 regimes (SlopeOnlyClassifier)
+            'bull': 'green',
+            'bear': 'red',
+            'flat': 'gold'
         }
 
         for idx, regime in enumerate(sorted(regimes)):

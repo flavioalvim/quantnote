@@ -5,6 +5,62 @@ from typing import Optional
 from ..domain.value_objects import Regime
 
 
+class SlopeOnlyClassifier:
+    """Classifies regimes using only slope (bull/bear/flat)."""
+
+    def __init__(
+        self,
+        slope_column: str,
+        slope_threshold: Optional[float] = None
+    ):
+        """
+        Initialize slope-only classifier.
+
+        Args:
+            slope_column: Name of the slope column
+            slope_threshold: Threshold for bull/bear classification.
+                           If None, uses 0.5 * std of slope.
+        """
+        self.slope_column = slope_column
+        self.slope_threshold = slope_threshold
+        self._slope_threshold: Optional[float] = None
+
+    def classify(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add regime column to DataFrame with bull/bear/flat classification."""
+        result = df.copy()
+
+        # Auto-calculate threshold if not provided
+        slope_thresh = self.slope_threshold
+        if slope_thresh is None:
+            slope_thresh = result[self.slope_column].std() * 0.5
+
+        # Store threshold for reference
+        self._slope_threshold = slope_thresh
+
+        # Classify based on slope only
+        def classify_row(row):
+            slope = row[self.slope_column]
+            if pd.isna(slope):
+                return None
+
+            if slope > slope_thresh:
+                return 'bull'
+            elif slope < -slope_thresh:
+                return 'bear'
+            else:
+                return 'flat'
+
+        result['regime'] = result.apply(classify_row, axis=1)
+
+        return result
+
+    def get_thresholds(self) -> dict:
+        """Return the thresholds used for classification."""
+        return {
+            'slope_threshold': self._slope_threshold
+        }
+
+
 class ManualRegimeClassifier:
     """Classifies regimes using manual thresholds."""
 

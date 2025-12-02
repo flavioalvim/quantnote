@@ -1,6 +1,6 @@
 """Regime analysis module."""
 from .time_series_splitter import TimeSeriesSplitter, Split
-from .regime_classifier import ManualRegimeClassifier
+from .regime_classifier import ManualRegimeClassifier, SlopeOnlyClassifier
 from .kmeans_regimes import KMeansRegimeClassifier, ClusterStatistics
 from .probability_calculator import ProbabilityCalculator, ConditionalProbability, SeparationMetrics
 from .dual_probability_calculator import (
@@ -22,6 +22,7 @@ __all__ = [
     'TimeSeriesSplitter',
     'Split',
     'ManualRegimeClassifier',
+    'SlopeOnlyClassifier',
     'KMeansRegimeClassifier',
     'ClusterStatistics',
     'ProbabilityCalculator',
