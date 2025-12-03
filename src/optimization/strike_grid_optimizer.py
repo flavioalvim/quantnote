@@ -12,6 +12,7 @@ from config.search_space import GAConfig
 from .genetic_algorithm import GeneticAlgorithm, GAResult
 from .chromosome import Chromosome
 from .multi_target_optimizer import MultiTargetResult
+from .return_strategy import IReturnStrategy, DEFAULT_CLOSE_STRATEGY
 
 
 @dataclass
@@ -32,6 +33,7 @@ class StrikeGridOptimizationResult:
     horizon: int
     strike_targets: Dict[float, StrikeTarget]  # strike -> StrikeTarget
     results: Dict[float, MultiTargetResult]    # strike -> optimization result
+    strategy_name: str = "close"               # Return strategy used
 
     def get_best_chromosome(self, strike: float) -> Chromosome:
         """Get best chromosome for a specific strike."""
@@ -73,6 +75,7 @@ class StrikeGridOptimizationResult:
         manifest = {
             'current_price': self.current_price,
             'horizon': self.horizon,
+            'strategy_name': self.strategy_name,
             'strikes': list(self.results.keys()),
             'n_strikes': len(self.results),
             'strike_targets': {
@@ -147,7 +150,8 @@ class StrikeGridOptimizationResult:
             current_price=manifest['current_price'],
             horizon=manifest['horizon'],
             strike_targets=strike_targets,
-            results=results
+            results=results,
+            strategy_name=manifest.get('strategy_name', 'close')  # Default for backward compat
         )
 
 
@@ -157,6 +161,8 @@ class StrikeGridOptimizer:
 
     Converts strikes to target returns based on current price,
     then runs independent GAs for each strike.
+
+    Uses Strategy Pattern for return type selection (close vs touch).
     """
 
     def __init__(
@@ -166,6 +172,7 @@ class StrikeGridOptimizer:
         strikes: List[float],
         horizon: int,
         ga_config: GAConfig,
+        strategy: Optional[IReturnStrategy] = None,
         logger: Optional[ILogger] = None
     ):
         """
@@ -177,6 +184,7 @@ class StrikeGridOptimizer:
             strikes: List of strike prices (e.g., [100, 105, 110, ...])
             horizon: Prediction horizon in days
             ga_config: Base GA configuration
+            strategy: Return strategy (close or touch). Defaults to close.
             logger: Optional logger
         """
         self.df = df
@@ -184,6 +192,7 @@ class StrikeGridOptimizer:
         self.strikes = sorted(strikes)
         self.horizon = horizon
         self.ga_config = ga_config
+        self.strategy = strategy or DEFAULT_CLOSE_STRATEGY
         self.logger = logger or NullLogger()
 
         # Calculate target returns for each strike
@@ -240,8 +249,9 @@ class StrikeGridOptimizer:
 
         if verbose:
             print("=" * 70)
-            print("STRIKE GRID OPTIMIZATION")
+            print(f"STRIKE GRID OPTIMIZATION ({self.strategy.name.upper()})")
             print("=" * 70)
+            print(f"Estratégia: P({self.strategy.name})")
             print(f"Preço atual: R$ {self.current_price:.2f}")
             print(f"Horizonte: {self.horizon} dias")
             print(f"Strikes: {n_strikes} ({min(self.strikes):.2f} a {max(self.strikes):.2f})")
@@ -281,10 +291,11 @@ class StrikeGridOptimizer:
             if ga_progress_callback_factory is not None:
                 ga_callback = ga_progress_callback_factory(i, strike)
 
-            # Run GA
+            # Run GA with strategy
             ga = GeneticAlgorithm(
                 self.df,
                 config,
+                strategy=self.strategy,
                 logger=self.logger,
                 progress_callback=ga_callback
             )
@@ -312,13 +323,15 @@ class StrikeGridOptimizer:
         if verbose:
             print(f"\n{'='*70}")
             print(f"OTIMIZAÇÃO CONCLUÍDA - {n_strikes} strikes processados")
+            print(f"Estratégia: P({self.strategy.name})")
             print(f"{'='*70}")
 
         return StrikeGridOptimizationResult(
             current_price=self.current_price,
             horizon=self.horizon,
             strike_targets=self.strike_targets,
-            results=self.results
+            results=self.results,
+            strategy_name=self.strategy.name
         )
 
     def save(self, path: str) -> None:
@@ -330,7 +343,8 @@ class StrikeGridOptimizer:
             current_price=self.current_price,
             horizon=self.horizon,
             strike_targets=self.strike_targets,
-            results=self.results
+            results=self.results,
+            strategy_name=self.strategy.name
         )
         result.save(path)
         self.logger.info("Results saved", path=path)

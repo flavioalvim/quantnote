@@ -14,6 +14,14 @@ from .strike_grid_optimizer import (
     StrikeTarget,
     StrikeGridOptimizationResult
 )
+from .return_strategy import (
+    IReturnStrategy,
+    CloseReturnStrategy,
+    TouchReturnStrategy,
+    DEFAULT_CLOSE_STRATEGY,
+    DEFAULT_TOUCH_STRATEGY,
+    get_strategy
+)
 
 __all__ = [
     'Chromosome',
@@ -30,5 +38,12 @@ __all__ = [
     'MultiTargetOptimizationResult',
     'StrikeGridOptimizer',
     'StrikeTarget',
-    'StrikeGridOptimizationResult'
+    'StrikeGridOptimizationResult',
+    # Strategies
+    'IReturnStrategy',
+    'CloseReturnStrategy',
+    'TouchReturnStrategy',
+    'DEFAULT_CLOSE_STRATEGY',
+    'DEFAULT_TOUCH_STRATEGY',
+    'get_strategy'
 ]

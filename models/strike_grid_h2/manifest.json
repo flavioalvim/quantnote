@@ -1,6 +1,7 @@
 {
   "current_price": 155.5,
   "horizon": 7,
+  "strategy_name": "close",
   "strikes": [
     147,
     148,

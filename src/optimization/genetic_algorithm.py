@@ -20,14 +20,19 @@ from config.search_space import GASearchSpace, GAConfig
 from .chromosome import Chromosome
 from .fitness import FitnessEvaluator, FitnessResult
 from .progress_callback import ProgressInfo
+from .return_strategy import IReturnStrategy, DEFAULT_CLOSE_STRATEGY
 
 
 def _evaluate_chromosome_worker(args: Tuple) -> Tuple[int, FitnessResult]:
     """Worker function for parallel evaluation (must be top-level for pickling)."""
-    idx, chrom_dict, df, target_return, horizon, stability_penalty, n_folds = args
+    idx, chrom_dict, df, target_return, horizon, stability_penalty, n_folds, strategy_name = args
 
     # Reconstruct chromosome from dict
     chrom = Chromosome(**chrom_dict)
+
+    # Reconstruct strategy from name (strategies are not picklable directly)
+    from .return_strategy import get_strategy
+    strategy = get_strategy(strategy_name)
 
     # Create evaluator in worker process
     evaluator = FitnessEvaluator(
@@ -37,6 +42,7 @@ def _evaluate_chromosome_worker(args: Tuple) -> Tuple[int, FitnessResult]:
         stability_penalty=stability_penalty,
         use_walk_forward=True,
         n_folds=n_folds,
+        strategy=strategy,
         logger=None
     )
 
@@ -111,18 +117,22 @@ class GeneticAlgorithm:
     Genetic algorithm for parameter optimization.
     Uses walk-forward validation to prevent overfitting.
     Supports parallel evaluation of chromosomes for speedup.
+
+    Uses Strategy Pattern for return type selection (close vs touch).
     """
 
     def __init__(
         self,
         df: pd.DataFrame,
         config: GAConfig,
+        strategy: Optional[IReturnStrategy] = None,
         logger: Optional[ILogger] = None,
         progress_callback: Optional[Callable[[int, float], None]] = None,
         n_workers: Optional[int] = None
     ):
         self.df = df
         self.config = config
+        self.strategy = strategy or DEFAULT_CLOSE_STRATEGY
         self.logger = logger or NullLogger()
         self.progress_callback = progress_callback
 
@@ -136,6 +146,7 @@ class GeneticAlgorithm:
             stability_penalty=config.stability_penalty,
             use_walk_forward=True,
             n_folds=config.n_folds,
+            strategy=self.strategy,
             logger=logger
         )
 
@@ -173,9 +184,9 @@ class GeneticAlgorithm:
             if verbose:
                 print(f"Resuming from generation {start_gen} (fitness={best_fitness:.4f})")
         else:
-            # Initialize population
+            # Initialize population (pass ga_config for forced indicator flags)
             population = [
-                Chromosome.random(search_space)
+                Chromosome.random(search_space, ga_config=self.config)
                 for _ in range(self.config.population_size)
             ]
             best_chromosome = None
@@ -312,15 +323,15 @@ class GeneticAlgorithm:
             parent1 = self._tournament_select(scored)
             parent2 = self._tournament_select(scored)
 
-            # Crossover
+            # Crossover (pass ga_config for forced indicator flags)
             if random.random() < self.config.crossover_probability:
-                child = Chromosome.crossover(parent1, parent2)
+                child = Chromosome.crossover(parent1, parent2, ga_config=self.config)
             else:
                 child = parent1
 
-            # Mutation
+            # Mutation (pass ga_config for forced indicator flags)
             if random.random() < self.config.mutation_probability:
-                child = child.mutate(search_space)
+                child = child.mutate(search_space, ga_config=self.config)
 
             new_population.append(child)
 
@@ -376,6 +387,7 @@ class GeneticAlgorithm:
     ) -> List[Tuple[Chromosome, FitnessResult]]:
         """Evaluate population in parallel using ProcessPoolExecutor."""
         # Prepare arguments for worker function
+        # Note: strategy_name is used instead of strategy object for pickling
         args_list = [
             (
                 idx,
@@ -384,7 +396,8 @@ class GeneticAlgorithm:
                 self.config.target_return,
                 self.config.horizon,
                 self.config.stability_penalty,
-                self.config.n_folds
+                self.config.n_folds,
+                self.strategy.name  # Pass strategy name for reconstruction in worker
             )
             for idx, chrom in enumerate(population)
         ]

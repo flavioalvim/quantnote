@@ -11,6 +11,7 @@ from ..interfaces.logger import ILogger
 from ..infrastructure.file_logger import NullLogger
 from .chromosome import Chromosome
 from .calculator_factory import CalculatorFactory
+from .return_strategy import IReturnStrategy, DEFAULT_CLOSE_STRATEGY
 
 
 @dataclass
@@ -38,6 +39,8 @@ class WalkForwardValidator:
     """
     Walk-forward validation to prevent overfitting.
     Tests parameter generalization across multiple time periods.
+
+    Uses Strategy Pattern for return type selection (close vs touch).
     """
 
     def __init__(
@@ -46,6 +49,7 @@ class WalkForwardValidator:
         horizon: int,
         n_folds: int = 5,
         min_train_size: int = 252,
+        strategy: Optional[IReturnStrategy] = None,
         logger: Optional[ILogger] = None
     ):
         """
@@ -56,15 +60,17 @@ class WalkForwardValidator:
             horizon: Number of periods for future return
             n_folds: Number of walk-forward folds
             min_train_size: Minimum training set size
+            strategy: Return strategy (close or touch). Defaults to close.
             logger: Optional logger
         """
         self.target_return = target_return
         self.horizon = horizon
         self.n_folds = n_folds
         self.min_train_size = min_train_size
+        self.strategy = strategy or DEFAULT_CLOSE_STRATEGY
         self.logger = logger or NullLogger()
         self.splitter = TimeSeriesSplitter()
-        self.factory = CalculatorFactory(horizon=horizon)
+        self.factory = CalculatorFactory(horizon=horizon, strategy=self.strategy)
 
     def validate(
         self,
@@ -120,7 +126,8 @@ class WalkForwardValidator:
         # Create pipeline
         pipeline = self.factory.create_pipeline(chromosome)
         feature_cols = self.factory.get_feature_columns(chromosome)
-        future_col = self.factory.get_future_return_column()
+        # Use strategy to get appropriate return column
+        future_col = self.factory.get_return_column(self.target_return)
 
         # Process train data
         train_processed = pipeline.run(split.train)

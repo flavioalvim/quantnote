@@ -1,0 +1,40 @@
+{
+  "chromosome": {
+    "window_slope": 46,
+    "window_volatility": 20,
+    "window_rolling_return": 20,
+    "window_trend_indicator": 10,
+    "trend_slope_multiplier": 2.0,
+    "n_clusters": 5,
+    "ma_fast_period": 9,
+    "ma_slow_period": 24,
+    "use_volatility": false,
+    "use_rolling_return": false,
+    "use_ma_distance": true,
+    "use_trend_indicator": false
+  },
+  "target_return": -0.054662379421221874,
+  "horizon": 7,
+  "ticker": null,
+  "strategy_name": "touch",
+  "feature_cols": [
+    "slope_46",
+    "ma_dist_9_24"
+  ],
+  "future_col": "log_return_touch_min_7",
+  "cluster_interpretations": {
+    "0": "bear",
+    "1": "bull",
+    "2": "bear",
+    "3": "bear",
+    "4": "bull"
+  },
+  "cluster_probabilities": {
+    "4": 0.1054030115146147,
+    "0": 0.122334455667789,
+    "1": 0.059850374064837904,
+    "3": 0.16212871287128713,
+    "2": 0.7222222222222222
+  },
+  "probability_unconditional": 0.11040547142159257
+}

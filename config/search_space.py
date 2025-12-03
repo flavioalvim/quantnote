@@ -1,6 +1,6 @@
 """GA Search Space configuration."""
 from pydantic import BaseModel, Field
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 import numpy as np
 
 
@@ -60,5 +60,24 @@ class GAConfig(BaseModel):
     early_stopping: bool = Field(default=True)
     early_stopping_patience: int = Field(default=20, ge=5, le=1000)
     early_stopping_threshold: float = Field(default=0.001, ge=0.0, le=0.1)
+
+    # Force indicator usage (None = let GA decide, True = always use, False = never use)
+    # When set to False, the indicator's parameters are excluded from optimization
+    force_use_volatility: Optional[bool] = Field(
+        default=None,
+        description="Force volatility usage: None=GA decides, True=always, False=never"
+    )
+    force_use_rolling_return: Optional[bool] = Field(
+        default=None,
+        description="Force rolling return usage: None=GA decides, True=always, False=never"
+    )
+    force_use_ma_distance: Optional[bool] = Field(
+        default=None,
+        description="Force MA distance usage: None=GA decides, True=always, False=never"
+    )
+    force_use_trend_indicator: Optional[bool] = Field(
+        default=None,
+        description="Force trend indicator usage: None=GA decides, True=always, False=never"
+    )
 
     search_space: GASearchSpace = GASearchSpace()

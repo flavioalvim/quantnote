@@ -1,40 +1,40 @@
 {
   "chromosome": {
-    "window_slope": 13,
-    "window_volatility": 21,
-    "window_rolling_return": 56,
-    "window_trend_indicator": 19,
-    "trend_slope_multiplier": 1.7,
+    "window_slope": 23,
+    "window_volatility": 20,
+    "window_rolling_return": 20,
+    "window_trend_indicator": 10,
+    "trend_slope_multiplier": 2.0,
     "n_clusters": 5,
-    "ma_fast_period": 6,
-    "ma_slow_period": 36,
-    "use_volatility": true,
-    "use_rolling_return": true,
+    "ma_fast_period": 15,
+    "ma_slow_period": 59,
+    "use_volatility": false,
+    "use_rolling_return": false,
     "use_ma_distance": true,
     "use_trend_indicator": false
   },
-  "target_return": -0.03753613008927348,
+  "target_return": -0.03536977491961413,
   "horizon": 7,
   "ticker": null,
+  "strategy_name": "close",
   "feature_cols": [
-    "slope_13",
-    "volatility_21",
-    "log_return_rolling_56",
-    "ma_dist_6_36"
+    "slope_23",
+    "ma_dist_15_59"
   ],
+  "future_col": "log_return_future_7",
   "cluster_interpretations": {
-    "0": "bear",
+    "0": "flat",
     "1": "bull",
-    "2": "flat",
+    "2": "bear",
     "3": "bear",
     "4": "bull"
   },
   "cluster_probabilities": {
-    "2": 0.11986754966887417,
-    "4": 0.06600153491941672,
-    "0": 0.14685314685314685,
-    "1": 0.14049586776859505,
-    "3": 0.28
+    "0": 0.15105946684894053,
+    "4": 0.09727947238252267,
+    "1": 0.07916666666666666,
+    "2": 0.1629032258064516,
+    "3": 0.2
   },
-  "probability_unconditional": 0.11214268262887857
+  "probability_unconditional": 0.12530532486565707
 }

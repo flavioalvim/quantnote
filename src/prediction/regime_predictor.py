@@ -10,6 +10,7 @@ from pathlib import Path
 
 from ..optimization.chromosome import Chromosome
 from ..optimization.calculator_factory import CalculatorFactory
+from ..optimization.return_strategy import IReturnStrategy, DEFAULT_CLOSE_STRATEGY, get_strategy
 from ..analysis.kmeans_regimes import KMeansRegimeClassifier
 from ..analysis.probability_calculator import ProbabilityCalculator
 from ..infrastructure.yahoo_data_source import YahooDataSource
@@ -60,6 +61,7 @@ class RegimePredictor:
         target_return: float,
         horizon: int,
         ticker: Optional[str] = None,
+        strategy: Optional[IReturnStrategy] = None,
         data_dir: str = "data",
         logger: Optional[ILogger] = None
     ):
@@ -71,6 +73,7 @@ class RegimePredictor:
             target_return: Target return for probability calculation
             horizon: Prediction horizon in days
             ticker: Ticker symbol (optional, can be set later)
+            strategy: Return strategy (close or touch). Defaults to close.
             data_dir: Directory for data cache
             logger: Optional logger
         """
@@ -78,13 +81,15 @@ class RegimePredictor:
         self.target_return = target_return
         self.horizon = horizon
         self.ticker = ticker
+        self.strategy = strategy or DEFAULT_CLOSE_STRATEGY
         self.data_dir = data_dir
         self.logger = logger or NullLogger()
 
-        # Create factory and get feature columns
-        self.factory = CalculatorFactory(horizon=horizon)
+        # Create factory with strategy and get feature columns
+        self.factory = CalculatorFactory(horizon=horizon, strategy=self.strategy)
         self.feature_cols = self.factory.get_feature_columns(chromosome)
-        self.future_col = self.factory.get_future_return_column()
+        # Use strategy to get appropriate return column
+        self.future_col = self.factory.get_return_column(target_return)
 
         # These will be set during fit()
         self.kmeans: Optional[KMeansRegimeClassifier] = None
@@ -289,7 +294,9 @@ class RegimePredictor:
             'target_return': self.target_return,
             'horizon': self.horizon,
             'ticker': self.ticker,
+            'strategy_name': self.strategy.name,
             'feature_cols': self.feature_cols,
+            'future_col': self.future_col,
             'cluster_interpretations': self.cluster_interpretations,
             'cluster_probabilities': self.cluster_probabilities,
             'probability_unconditional': self.probability_unconditional,
@@ -323,12 +330,17 @@ class RegimePredictor:
         # Recreate chromosome
         chromosome = Chromosome.from_dict(config['chromosome'])
 
+        # Recreate strategy
+        strategy_name = config.get('strategy_name', 'close')  # Default for backward compat
+        strategy = get_strategy(strategy_name)
+
         # Create predictor
         predictor = cls(
             chromosome=chromosome,
             target_return=config['target_return'],
             horizon=config['horizon'],
             ticker=config.get('ticker'),
+            strategy=strategy,
             data_dir=data_dir,
             logger=logger
         )

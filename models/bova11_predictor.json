@@ -1,14 +1,14 @@
 {
   "chromosome": {
-    "window_slope": 28,
-    "window_volatility": 39,
-    "window_rolling_return": 17,
-    "window_trend_indicator": 11,
-    "trend_slope_multiplier": 2.5,
-    "n_clusters": 5,
-    "ma_fast_period": 5,
-    "ma_slow_period": 44,
-    "use_volatility": true,
+    "window_slope": 57,
+    "window_volatility": 20,
+    "window_rolling_return": 20,
+    "window_trend_indicator": 10,
+    "trend_slope_multiplier": 2.0,
+    "n_clusters": 4,
+    "ma_fast_period": 7,
+    "ma_slow_period": 21,
+    "use_volatility": false,
     "use_rolling_return": false,
     "use_ma_distance": true,
     "use_trend_indicator": false
@@ -16,24 +16,23 @@
   "target_return": 0.03,
   "horizon": 7,
   "ticker": "BOVA11.SA",
+  "strategy_name": "close",
   "feature_cols": [
-    "slope_28",
-    "volatility_39",
-    "ma_dist_5_44"
+    "slope_57",
+    "ma_dist_7_21"
   ],
+  "future_col": "log_return_future_7",
   "cluster_interpretations": {
     "0": "bull",
-    "1": "flat",
+    "1": "bull",
     "2": "bear",
-    "3": "bull",
-    "4": "bear"
+    "3": "bear"
   },
   "cluster_probabilities": {
-    "1": 0.20509915014164307,
-    "2": 0.2521419828641371,
-    "0": 0.18583450210378682,
-    "4": 0.7619047619047619,
-    "3": 0.36363636363636365
+    "0": 0.19036144578313252,
+    "1": 0.18671152228763668,
+    "2": 0.2422907488986784,
+    "3": 0.6666666666666666
   },
   "probability_unconditional": 0.2127503663898388
 }

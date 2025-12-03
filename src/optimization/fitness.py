@@ -9,6 +9,7 @@ from ..infrastructure.file_logger import NullLogger
 from .chromosome import Chromosome
 from .calculator_factory import CalculatorFactory
 from .walk_forward_validator import WalkForwardValidator, WalkForwardResult
+from .return_strategy import IReturnStrategy, DEFAULT_CLOSE_STRATEGY
 
 
 @dataclass
@@ -28,6 +29,8 @@ class FitnessEvaluator:
     Evaluates chromosome fitness using walk-forward validation.
     Prevents overfitting by measuring out-of-sample performance.
     Includes caching to avoid redundant evaluations.
+
+    Uses Strategy Pattern for return type selection (close vs touch).
     """
 
     def __init__(
@@ -39,6 +42,7 @@ class FitnessEvaluator:
         overfitting_penalty: float = 0.2,
         use_walk_forward: bool = True,
         n_folds: int = 5,
+        strategy: Optional[IReturnStrategy] = None,
         logger: Optional[ILogger] = None,
         use_cache: bool = True
     ):
@@ -53,6 +57,7 @@ class FitnessEvaluator:
             overfitting_penalty: Penalty for overfitting
             use_walk_forward: Use walk-forward validation
             n_folds: Number of validation folds
+            strategy: Return strategy (close or touch). Defaults to close.
             logger: Optional logger
             use_cache: Enable evaluation caching
         """
@@ -63,6 +68,7 @@ class FitnessEvaluator:
         self.overfitting_penalty = overfitting_penalty
         self.use_walk_forward = use_walk_forward
         self.n_folds = n_folds
+        self.strategy = strategy or DEFAULT_CLOSE_STRATEGY
         self.logger = logger or NullLogger()
         self.use_cache = use_cache
 
@@ -71,11 +77,12 @@ class FitnessEvaluator:
         self._cache_hits = 0
         self._cache_misses = 0
 
-        self.factory = CalculatorFactory(horizon=horizon)
+        self.factory = CalculatorFactory(horizon=horizon, strategy=self.strategy)
         self.validator = WalkForwardValidator(
             target_return=target_return,
             horizon=horizon,
             n_folds=n_folds,
+            strategy=self.strategy,
             logger=logger
         )
 
@@ -186,7 +193,8 @@ class FitnessEvaluator:
 
         pipeline = self.factory.create_pipeline(chromosome)
         feature_cols = self.factory.get_feature_columns(chromosome)
-        future_col = self.factory.get_future_return_column()
+        # Use strategy to get appropriate return column
+        future_col = self.factory.get_return_column(self.target_return)
 
         df_processed = pipeline.run(self.df_base)
 

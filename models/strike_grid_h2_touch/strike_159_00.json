@@ -1,0 +1,26 @@
+{
+  "target": 0.022508038585209,
+  "best_chromosome": {
+    "window_slope": 57,
+    "window_volatility": 20,
+    "window_rolling_return": 20,
+    "window_trend_indicator": 10,
+    "trend_slope_multiplier": 2.0,
+    "n_clusters": 5,
+    "ma_fast_period": 11,
+    "ma_slow_period": 45,
+    "use_volatility": false,
+    "use_rolling_return": false,
+    "use_ma_distance": true,
+    "use_trend_indicator": false
+  },
+  "best_fitness": 0.491979724409259,
+  "best_metrics": {
+    "fitness": 0.491979724409259,
+    "delta_p": 0.49727745787503913,
+    "delta_p_test": 0.49727745787503913,
+    "stability_score": 0.0529773346578013,
+    "overfitting_ratio": 0.7512570387825429
+  },
+  "all_evaluations": 1000
+}

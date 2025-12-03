@@ -31,6 +31,13 @@ class AnalysisConfig(BaseModel):
     # Clustering
     n_clusters: int = Field(default=6, ge=2, le=10)
 
+    # Indicator enable/disable flags
+    # These control which indicators are used throughout the analysis
+    use_volatility: bool = Field(default=True, description="Include volatility indicator")
+    use_rolling_return: bool = Field(default=True, description="Include rolling return indicator")
+    use_ma_distance: bool = Field(default=True, description="Include MA distance indicator")
+    use_trend_indicator: bool = Field(default=True, description="Include trend indicator (higher lows/lower highs)")
+
     # Targets
     target_return: float = Field(default=0.05, ge=0.001, le=0.50)
 

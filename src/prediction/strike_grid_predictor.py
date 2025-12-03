@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from ..interfaces.logger import ILogger
 from ..infrastructure.file_logger import NullLogger
 from ..optimization.strike_grid_optimizer import StrikeGridOptimizationResult, StrikeTarget
+from ..optimization.return_strategy import get_strategy
 from .regime_predictor import RegimePredictor, CurrentRegimeResult
 
 
@@ -39,6 +40,7 @@ class StrikeGridPredictor:
         strike_targets: Dict[float, StrikeTarget],
         training_price: float,
         horizon: int,
+        strategy_name: str = "close",
         logger: Optional[ILogger] = None
     ):
         """
@@ -49,12 +51,14 @@ class StrikeGridPredictor:
             strike_targets: Dict mapping strike -> StrikeTarget
             training_price: Price used during training (for reference)
             horizon: Prediction horizon in days
+            strategy_name: Strategy used ('close' or 'touch')
             logger: Optional logger
         """
         self.predictors = predictors
         self.strike_targets = strike_targets
         self.training_price = training_price
         self.horizon = horizon
+        self.strategy_name = strategy_name
         self.logger = logger or NullLogger()
         self.strikes = sorted(predictors.keys())
 
@@ -80,14 +84,18 @@ class StrikeGridPredictor:
         """
         predictors = {}
 
+        # Get strategy from optimization result
+        strategy = get_strategy(optimization_result.strategy_name)
+
         for strike, result in optimization_result.results.items():
             st = optimization_result.strike_targets[strike]
 
-            # Create and fit predictor for this strike
+            # Create and fit predictor for this strike with the correct strategy
             predictor = RegimePredictor(
                 chromosome=result.ga_result.best_chromosome,
                 target_return=st.target_return,
                 horizon=optimization_result.horizon,
+                strategy=strategy,  # ← Pass the strategy!
                 data_dir=data_dir,
                 logger=logger
             )
@@ -99,6 +107,7 @@ class StrikeGridPredictor:
             strike_targets=optimization_result.strike_targets,
             training_price=optimization_result.current_price,
             horizon=optimization_result.horizon,
+            strategy_name=optimization_result.strategy_name,
             logger=logger
         )
 
@@ -160,10 +169,14 @@ class StrikeGridPredictor:
         current_price = current_result.price
         current_date = current_result.date
 
+        # Column name based on strategy
+        prob_col_name = "P(tocar)" if self.strategy_name == "touch" else "P(fechar)"
+
         print("=" * 80)
-        print("MATRIZ DE STRIKES")
+        print(f"MATRIZ DE STRIKES - {prob_col_name.upper()}")
         print("=" * 80)
         print(f"Ticker: {ticker}")
+        print(f"Estratégia: {self.strategy_name}")
         print(f"Horizonte: {self.horizon} dias")
         print(f"Data: {current_date.strftime('%Y-%m-%d') if hasattr(current_date, 'strftime') else current_date}")
         print(f"Preço Atual: R$ {current_price:.2f}")
@@ -173,7 +186,7 @@ class StrikeGridPredictor:
         # Find ATM strike (closest to current price)
         atm_strike = min(self.strikes, key=lambda x: abs(x - current_price))
 
-        print(f"\n{'Strike':<10} {'Retorno':<10} {'P(fechar)':<12} {'P(base)':<12} {'Delta':<10} {'Regime':<8}")
+        print(f"\n{'Strike':<10} {'Retorno':<10} {prob_col_name:<12} {'P(base)':<12} {'Delta':<10} {'Regime':<8}")
         print("-" * 62)
 
         for _, row in result.iterrows():
@@ -238,6 +251,7 @@ class StrikeGridPredictor:
         manifest = {
             'training_price': self.training_price,
             'horizon': self.horizon,
+            'strategy_name': self.strategy_name,
             'strikes': self.strikes,
             'n_strikes': len(self.strikes),
             'strike_targets': {
@@ -305,5 +319,6 @@ class StrikeGridPredictor:
             strike_targets=strike_targets,
             training_price=manifest['training_price'],
             horizon=manifest['horizon'],
+            strategy_name=manifest.get('strategy_name', 'close'),  # Default for backward compat
             logger=logger
         )

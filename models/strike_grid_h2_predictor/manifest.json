@@ -1,7 +1,9 @@
 {
-  "training_price": 155.85000610351562,
+  "training_price": 155.5,
   "horizon": 7,
+  "strategy_name": "close",
   "strikes": [
+    147,
     148,
     149,
     150,
@@ -26,99 +28,103 @@
     169,
     170
   ],
-  "n_strikes": 23,
+  "n_strikes": 24,
   "strike_targets": {
+    "147": {
+      "strike": 147,
+      "target_return": -0.054662379421221874
+    },
     "148": {
       "strike": 148,
-      "target_return": -0.050368981688083125
+      "target_return": -0.048231511254019255
     },
     "149": {
       "strike": 149,
-      "target_return": -0.0439525558886783
+      "target_return": -0.04180064308681675
     },
     "150": {
       "strike": 150,
-      "target_return": -0.03753613008927348
+      "target_return": -0.03536977491961413
     },
     "151": {
       "strike": 151,
-      "target_return": -0.031119704289868655
+      "target_return": -0.02893890675241162
     },
     "152": {
       "strike": 152,
-      "target_return": -0.02470327849046372
+      "target_return": -0.022508038585209
     },
     "153": {
       "strike": 153,
-      "target_return": -0.018286852691058897
+      "target_return": -0.01607717041800638
     },
     "154": {
       "strike": 154,
-      "target_return": -0.011870426891654073
+      "target_return": -0.009646302250803873
     },
     "155": {
       "strike": 155,
-      "target_return": -0.00545400109224925
+      "target_return": -0.003215434083601254
     },
     "156": {
       "strike": 156,
-      "target_return": 0.0009624247071555736
+      "target_return": 0.003215434083601254
     },
     "157": {
       "strike": 157,
-      "target_return": 0.007378850506560397
+      "target_return": 0.009646302250803762
     },
     "158": {
       "strike": 158,
-      "target_return": 0.01379527630596522
+      "target_return": 0.016077170418006492
     },
     "159": {
       "strike": 159,
-      "target_return": 0.020211702105370044
+      "target_return": 0.022508038585209
     },
     "160": {
       "strike": 160,
-      "target_return": 0.026628127904774868
+      "target_return": 0.02893890675241151
     },
     "161": {
       "strike": 161,
-      "target_return": 0.03304455370417991
+      "target_return": 0.03536977491961424
     },
     "162": {
       "strike": 162,
-      "target_return": 0.03946097950358474
+      "target_return": 0.04180064308681675
     },
     "163": {
       "strike": 163,
-      "target_return": 0.04587740530298956
+      "target_return": 0.048231511254019255
     },
     "164": {
       "strike": 164,
-      "target_return": 0.052293831102394384
+      "target_return": 0.05466237942122176
     },
     "165": {
       "strike": 165,
-      "target_return": 0.05871025690179921
+      "target_return": 0.06109324758842449
     },
     "166": {
       "strike": 166,
-      "target_return": 0.06512668270120403
+      "target_return": 0.067524115755627
     },
     "167": {
       "strike": 167,
-      "target_return": 0.07154310850060885
+      "target_return": 0.07395498392282951
     },
     "168": {
       "strike": 168,
-      "target_return": 0.07795953430001368
+      "target_return": 0.08038585209003224
     },
     "169": {
       "strike": 169,
-      "target_return": 0.0843759600994185
+      "target_return": 0.08681672025723475
     },
     "170": {
       "strike": 170,
-      "target_return": 0.09079238589882332
+      "target_return": 0.09324758842443726
     }
   }
 }

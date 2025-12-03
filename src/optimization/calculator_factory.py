@@ -1,5 +1,5 @@
 """Factory for creating calculator pipelines from chromosomes."""
-from typing import List
+from typing import List, Optional, Union
 
 from ..interfaces.column_calculator import IColumnCalculator
 from ..calculators.log_price_calculator import LogPriceCalculator
@@ -12,24 +12,46 @@ from ..calculators.ma_distance_calculator import MADistanceCalculator
 from ..calculators.trend_indicator_calculator import TrendIndicatorCalculator
 from ..calculators.pipeline import CalculatorPipeline
 from .chromosome import Chromosome
+from .return_strategy import (
+    IReturnStrategy,
+    CloseReturnStrategy,
+    DEFAULT_CLOSE_STRATEGY
+)
 
 
 class CalculatorFactory:
     """
     Factory for creating calculator pipelines from chromosomes.
     Implements Dependency Inversion - GA depends on factory, not concrete calculators.
+
+    Uses Strategy Pattern for return type selection (close vs touch).
     """
 
-    def __init__(self, horizon: int = 7, include_touch: bool = False):
+    def __init__(
+        self,
+        horizon: int = 7,
+        strategy: Optional[IReturnStrategy] = None,
+        include_touch: bool = False  # Deprecated: use strategy instead
+    ):
         """
         Initialize factory with fixed prediction horizon.
 
         Args:
             horizon: Number of periods for future return calculation
-            include_touch: Whether to include touch (max/min) return calculations
+            strategy: Return strategy (CloseReturnStrategy or TouchReturnStrategy).
+                     If None, uses CloseReturnStrategy (default behavior).
+            include_touch: DEPRECATED - use strategy parameter instead.
+                          Kept for backward compatibility.
         """
         self.horizon = horizon
-        self.include_touch = include_touch
+
+        # Strategy takes precedence over include_touch flag
+        if strategy is not None:
+            self.strategy = strategy
+            self.include_touch = strategy.should_include_touch_calculator()
+        else:
+            self.strategy = DEFAULT_CLOSE_STRATEGY
+            self.include_touch = include_touch
 
     def create_pipeline(self, chromosome: Chromosome) -> CalculatorPipeline:
         """Create a pipeline configured by the chromosome."""
@@ -91,6 +113,18 @@ class CalculatorFactory:
 
         return features
 
+    def get_return_column(self, target_return: float) -> str:
+        """
+        Get the appropriate return column using the configured strategy.
+
+        Args:
+            target_return: Target return (for direction detection in touch strategy)
+
+        Returns:
+            Column name for probability calculation
+        """
+        return self.strategy.get_return_column(self.horizon, target_return)
+
     def get_future_return_column(self) -> str:
         """Get the future return column name (close-to-close)."""
         return f'log_return_future_{self.horizon}'
@@ -102,3 +136,8 @@ class CalculatorFactory:
     def get_future_touch_min_column(self) -> str:
         """Get the future touch min return column name (for downside targets)."""
         return f'log_return_touch_min_{self.horizon}'
+
+    @property
+    def strategy_name(self) -> str:
+        """Get the name of the current strategy."""
+        return self.strategy.name
